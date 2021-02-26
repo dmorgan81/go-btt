@@ -3,9 +3,7 @@ package btt
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"io"
-	"io/ioutil"
+	"net/http"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -13,53 +11,26 @@ import (
 // GetTrigger returns the JSON representation of the trigger with the specified UUID
 func (b *BTT) GetTrigger(ctx context.Context, uuid string) (string, error) {
 	log.WithField("uuid", uuid).Debug("GetTrigger")
-	req, err := b.newRequest(ctx, "get_trigger")
-	if err != nil {
-		return "", err
-	}
-
-	q := req.URL.Query()
-	q.Add("uuid", uuid)
-	req.URL.RawQuery = q.Encode()
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug(req.URL.String())
-	}
-
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("btt GetTrigger error: %w", err)
-	}
-	defer resp.Body.Close()
-
-	buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
-	_, err = buf.ReadFrom(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("btt GetTrigger error: %w", err)
-	}
-	return buf.String(), nil
+	var s string
+	err := b.simple(ctx, "get_trigger", uuid, func(r *http.Response) error {
+		buf := bytes.NewBuffer(make([]byte, 0, r.ContentLength))
+		_, err := buf.ReadFrom(r.Body)
+		if err == nil {
+			s = buf.String()
+		}
+		return err
+	})
+	return s, err
 }
 
-// ExecuteTrigger executes assigned actions for the trigger with the
-// specified UUID in BTT
+// ExecuteTrigger executes assigned actions for the trigger with the specified UUID
 func (b *BTT) ExecuteTrigger(ctx context.Context, uuid string) error {
 	log.WithField("uuid", uuid).Debug("ExecuteTrigger")
-	req, err := b.newRequest(ctx, "execute_assigned_actions_for_trigger")
-	if err != nil {
-		return err
-	}
+	return b.simple(ctx, "execute_assigned_actions_for_trigger", uuid, nil)
+}
 
-	q := req.URL.Query()
-	q.Add("uuid", uuid)
-	req.URL.RawQuery = q.Encode()
-	if log.IsLevelEnabled(log.DebugLevel) {
-		log.Debug(req.URL.String())
-	}
-
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return fmt.Errorf("btt ExecuteTrigger error: %w", err)
-	}
-	defer resp.Body.Close()
-	_, err = io.Copy(ioutil.Discard, resp.Body)
-	return err
+// DeleteTrigger deletes the trigger with the specified UUID
+func (b *BTT) DeleteTrigger(ctx context.Context, uuid string) error {
+	log.WithField("uuid", uuid).Debug("DeleteTrigger")
+	return b.simple(ctx, "delete_trigger", uuid, nil)
 }

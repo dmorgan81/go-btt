@@ -3,7 +3,11 @@ package btt
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // BTT represents a connection to a BTT webserver
@@ -41,4 +45,39 @@ func (b *BTT) newRequest(ctx context.Context, action string) (*http.Request, err
 		req.URL.RawQuery = q.Encode()
 	}
 	return req, nil
+}
+
+func (b *BTT) simple(ctx context.Context, action, uuid string, f func(r *http.Response) error) error {
+	log.WithFields(log.Fields{
+		"action": action,
+		"uuid":   uuid,
+	}).Debug("simple")
+
+	req, err := b.newRequest(ctx, action)
+	if err != nil {
+		return err
+	}
+
+	q := req.URL.Query()
+	q.Add("uuid", uuid)
+	req.URL.RawQuery = q.Encode()
+	if log.IsLevelEnabled(log.DebugLevel) {
+		log.Debug(req.URL.String())
+	}
+
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("btt error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if f == nil {
+		_, err := io.Copy(ioutil.Discard, resp.Body)
+		return err
+	}
+
+	if err := f(resp); err != nil {
+		return fmt.Errorf("btt error: %w", err)
+	}
+	return nil
 }
