@@ -116,8 +116,8 @@ func (b *BTT) SetVariable(ctx context.Context, name, value string, persistent, n
 		return fmt.Errorf("btt SetVariable error: %w", err)
 	}
 	defer resp.Body.Close()
-	io.Copy(ioutil.Discard, resp.Body)
-	return nil
+	_, err = io.Copy(ioutil.Discard, resp.Body)
+	return err
 }
 
 // SetStringVariable is shorthand for SetVariable(ctx, name, value, false, false)
