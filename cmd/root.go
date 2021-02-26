@@ -45,7 +45,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default is %s/go-btt/config.yaml)", xdg.ConfigHome))
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", fmt.Sprintf("config file (default %s/go-btt/config.yaml)", xdg.ConfigHome))
 	rootCmd.PersistentFlags().String("log-level", "info", "")
 	rootCmd.PersistentFlags().MarkHidden("log-level")
 	rootCmd.PersistentFlags().String("addr", "http://localhost:50887", "BTT webserver address")

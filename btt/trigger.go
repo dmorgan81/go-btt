@@ -10,7 +10,7 @@ import (
 
 // GetTrigger returns the JSON representation of the trigger with the specified UUID
 func (b *BTT) GetTrigger(ctx context.Context, uuid string) (string, error) {
-	log.WithField("uuid", uuid).Debug("get_trigger")
+	log.WithField("uuid", uuid).Debug("GetTrigger")
 	req, err := b.newRequest(ctx, "get_trigger")
 	if err != nil {
 		return "", err
@@ -25,14 +25,14 @@ func (b *BTT) GetTrigger(ctx context.Context, uuid string) (string, error) {
 
 	resp, err := b.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("btt get_trigger error: %w", err)
+		return "", fmt.Errorf("btt GetTrigger error: %w", err)
 	}
 	defer resp.Body.Close()
 
 	buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
 	_, err = buf.ReadFrom(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("btt get_trigger error: %w", err)
+		return "", fmt.Errorf("btt GetTrigger error: %w", err)
 	}
 	return buf.String(), nil
 }
