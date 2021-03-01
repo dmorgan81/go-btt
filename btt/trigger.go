@@ -27,7 +27,11 @@ func (b *BTT) DeleteTrigger(ctx context.Context, uuid string) error {
 }
 
 // Trigger the named trigger with the specified name
-func (b *BTT) Trigger(ctx context.Context, name string) error {
+func (b *BTT) Trigger(ctx context.Context, name string, async bool) error {
 	log.WithField("name", name).Debug("Trigger")
-	return b.execute(ctx, "trigger_named", map[string]string{"trigger_name": name}, ioutil.Discard)
+	action := "trigger_named"
+	if async {
+		action = "trigger_named_async_without_response"
+	}
+	return b.execute(ctx, action, map[string]string{"trigger_name": name}, ioutil.Discard)
 }

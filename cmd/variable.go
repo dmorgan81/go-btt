@@ -41,7 +41,7 @@ func init() {
 	rootCmd.AddCommand(variableCmd)
 
 	variableCmd.Flags().Bool("persistent", false, "is variable persistent (default false)")
-	variableCmd.Flags().Bool("number", false, "is variable a number (default true)")
+	variableCmd.Flags().Bool("number", false, "is variable a number (default false)")
 
 	viper.BindPFlags(variableCmd.Flags())
 }

@@ -18,7 +18,7 @@ var triggerNamedCmd = &cobra.Command{
 		defer cancel()
 
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
-		if err := b.Trigger(ctx, args[0]); err != nil {
+		if err := b.Trigger(ctx, args[0], viper.GetBool("async")); err != nil {
 			fmt.Println(err)
 		}
 	},
@@ -26,4 +26,8 @@ var triggerNamedCmd = &cobra.Command{
 
 func init() {
 	triggerCmd.AddCommand(triggerNamedCmd)
+
+	triggerNamedCmd.Flags().Bool("async", false, "exected named trigger asynchronously (default false)")
+
+	viper.BindPFlags(triggerNamedCmd.Flags())
 }
