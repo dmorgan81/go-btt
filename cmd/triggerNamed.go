@@ -3,28 +3,27 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/dmorgan81/go-btt/btt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var getTriggerCmd = &cobra.Command{
-	Use:   "get <uuid>",
-	Short: "Get a trigger by its UUID",
+var triggerNamedCmd = &cobra.Command{
+	Use:   "named",
+	Short: "Trigger the specified named trigger",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 		defer cancel()
 
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
-		if err := b.GetTrigger(ctx, args[0], os.Stdout); err != nil {
+		if err := b.Trigger(ctx, args[0]); err != nil {
 			fmt.Println(err)
 		}
 	},
 }
 
 func init() {
-	triggerCmd.AddCommand(getTriggerCmd)
+	triggerCmd.AddCommand(triggerNamedCmd)
 }

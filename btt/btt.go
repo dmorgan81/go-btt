@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -47,10 +46,10 @@ func (b *BTT) newRequest(ctx context.Context, action string) (*http.Request, err
 	return req, nil
 }
 
-func (b *BTT) simple(ctx context.Context, action, uuid string, f func(r *http.Response) error) error {
+func (b *BTT) execute(ctx context.Context, action string, params map[string]string, w io.Writer) error {
 	log.WithFields(log.Fields{
 		"action": action,
-		"uuid":   uuid,
+		"params": params,
 	}).Debug("simple")
 
 	req, err := b.newRequest(ctx, action)
@@ -59,7 +58,9 @@ func (b *BTT) simple(ctx context.Context, action, uuid string, f func(r *http.Re
 	}
 
 	q := req.URL.Query()
-	q.Add("uuid", uuid)
+	for k, v := range params {
+		q.Add(k, v)
+	}
 	req.URL.RawQuery = q.Encode()
 	if log.IsLevelEnabled(log.DebugLevel) {
 		log.Debug(req.URL.String())
@@ -71,13 +72,6 @@ func (b *BTT) simple(ctx context.Context, action, uuid string, f func(r *http.Re
 	}
 	defer resp.Body.Close()
 
-	if f == nil {
-		_, err := io.Copy(ioutil.Discard, resp.Body)
-		return err
-	}
-
-	if err := f(resp); err != nil {
-		return fmt.Errorf("btt error: %w", err)
-	}
-	return nil
+	_, err = io.Copy(w, resp.Body)
+	return err
 }
