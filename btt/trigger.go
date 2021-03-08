@@ -35,3 +35,12 @@ func (b *BTT) Trigger(ctx context.Context, name string, async bool) error {
 	}
 	return b.execute(ctx, action, map[string]string{"trigger_name": name}, ioutil.Discard)
 }
+
+func (b *BTT) UpdateTrigger(ctx context.Context, uuid string, r io.Reader) error {
+	log.WithField("uuid", uuid).Debug("UpdateTrigger")
+	d, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	return b.execute(ctx, "update_trigger", map[string]string{"uuid": uuid, "json": string(d)}, ioutil.Discard)
+}

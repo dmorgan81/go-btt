@@ -10,7 +10,7 @@ import (
 )
 
 var triggerNamedCmd = &cobra.Command{
-	Use:   "named",
+	Use:   "named <name>",
 	Short: "Trigger the specified named trigger",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
