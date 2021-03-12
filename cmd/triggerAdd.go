@@ -22,7 +22,8 @@ var triggerAddCmd = &cobra.Command{
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
 		uuid, err := b.AddTrigger(ctx, os.Stdin)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(cmd.ErrOrStderr(), err)
+			os.Exit(1)
 		} else {
 			fmt.Println(uuid)
 		}

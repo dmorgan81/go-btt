@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/dmorgan81/go-btt/btt"
 	"github.com/spf13/cobra"
@@ -25,13 +26,15 @@ Two arguments means set the variable with that name to the supplied value.`,
 		if len(args) == 1 {
 			s, err := b.GetVariable(ctx, args[0], viper.GetBool("persistent"), viper.GetBool("number"))
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(cmd.ErrOrStderr(), err)
+				os.Exit(1)
 			} else {
 				fmt.Println(s)
 			}
 		} else {
 			if err := b.SetVariable(ctx, args[0], args[1], viper.GetBool("persistent"), viper.GetBool("number")); err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(cmd.ErrOrStderr(), err)
+				os.Exit(1)
 			}
 		}
 	},

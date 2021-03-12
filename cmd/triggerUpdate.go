@@ -20,7 +20,8 @@ var triggerUpdateCmd = &cobra.Command{
 
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
 		if err := b.UpdateTrigger(ctx, args[0], os.Stdin); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(cmd.ErrOrStderr(), err)
+			os.Exit(1)
 		}
 	},
 }

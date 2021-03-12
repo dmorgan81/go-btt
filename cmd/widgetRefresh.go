@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/dmorgan81/go-btt/btt"
 	"github.com/spf13/cobra"
@@ -19,7 +20,8 @@ var widgetRefreshCmd = &cobra.Command{
 
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
 		if err := b.RefreshWidget(ctx, args[0]); err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(cmd.ErrOrStderr(), err)
+			os.Exit(1)
 		}
 	},
 }
