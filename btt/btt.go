@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -50,7 +51,7 @@ func (b *BTT) execute(ctx context.Context, action string, params map[string]stri
 	log.WithFields(log.Fields{
 		"action": action,
 		"params": params,
-	}).Debug("simple")
+	}).Debug("execute")
 
 	req, err := b.newRequest(ctx, action)
 	if err != nil {
@@ -61,7 +62,7 @@ func (b *BTT) execute(ctx context.Context, action string, params map[string]stri
 	for k, v := range params {
 		q.Add(k, v)
 	}
-	req.URL.RawQuery = q.Encode()
+	req.URL.RawQuery = strings.ReplaceAll(q.Encode(), "+", "%20")
 	if log.IsLevelEnabled(log.DebugLevel) {
 		log.Debug(req.URL.String())
 	}
