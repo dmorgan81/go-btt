@@ -24,7 +24,7 @@ Two arguments means set the variable with that name to the supplied value.`,
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
 
 		if len(args) == 1 {
-			s, err := b.GetVariable(ctx, args[0], viper.GetBool("persistent"), viper.GetBool("number"))
+			s, err := b.GetVariable(ctx, args[0], viper.GetBool("number"))
 			if err != nil {
 				fmt.Fprintln(cmd.ErrOrStderr(), err)
 				os.Exit(1)
