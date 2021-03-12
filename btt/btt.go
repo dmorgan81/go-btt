@@ -72,6 +72,10 @@ func (b *BTT) execute(ctx context.Context, action string, params map[string]stri
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error response from btt: %d", resp.StatusCode)
+	}
+
 	_, err = io.Copy(w, resp.Body)
 	return err
 }
