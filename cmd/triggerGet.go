@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/dmorgan81/go-btt/btt"
@@ -20,8 +19,7 @@ var getTriggerCmd = &cobra.Command{
 
 		b := btt.New(viper.GetString("addr")).WithSecret(viper.GetString("secret"))
 		if err := b.GetTrigger(ctx, args[0], os.Stdout); err != nil {
-			fmt.Fprintln(cmd.ErrOrStderr(), err)
-			os.Exit(1)
+			exit(cmd, err)
 		}
 	},
 }
