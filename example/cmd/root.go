@@ -109,12 +109,25 @@ var rootCmd = &cobra.Command{
 		trigger := func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
 			defer cancel()
-			json := fmt.Sprintf(`{"BTTTouchBarButtonName":"expl %d"}`, count)
+			json := fmt.Sprintf(`{"BTTTouchBarButtonName":"expl + %d"}`, count)
 			return b.UpdateTrigger(ctx, uuid, strings.NewReader(json))
 		}
 		if err := trigger(); err != nil {
 			fmt.Fprintln(cmd.ErrOrStderr(), err)
 			os.Exit(1)
+		}
+
+		cleanup := func() (err error) {
+			ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("timeout"))
+			defer cancel()
+
+			if err = b.DeleteTrigger(ctx, uuid); err != nil {
+				fmt.Fprintln(cmd.ErrOrStderr(), err)
+			}
+			if err = b.SetPersistentStringVariable(ctx, bttVarName, ""); err != nil {
+				fmt.Fprintln(cmd.ErrOrStderr(), err)
+			}
+			return
 		}
 
 		for {
@@ -126,6 +139,9 @@ var rootCmd = &cobra.Command{
 					os.Exit(1)
 				}
 			case <-done:
+				if err := cleanup(); err != nil {
+					os.Exit(1)
+				}
 				return
 			}
 		}
@@ -154,4 +170,5 @@ func init() {
 
 func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 }
